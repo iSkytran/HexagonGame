@@ -24,6 +24,7 @@
 #include <raylib.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(void)
 {
@@ -37,7 +38,20 @@ int main(void)
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
+    //load textures
+    Texture2D hex = LoadTexture("../assets/1-2hexW.png");
 
+    //test color grid
+    Color grid[10][10];
+    for (int i = 0; i < 10; i++)
+        for (int j = 0; j < 10; j++) {
+            grid[i][j].a = 50;
+            grid[i][j].r = rand()%256;
+            grid[i][j].g = rand()%256;
+            grid[i][j].b = rand()%256;
+        }
+
+    
     // create camera
     // set camera data
 
@@ -54,8 +68,13 @@ int main(void)
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
-            DrawPixel(10, 10, BLACK);
-            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+            //DrawTexture(hex, 0, 0, DARKBLUE);
+            //DrawTexture(hex, 60, 0, LIGHTGRAY);
+            //DrawTexture(hex, 30, 49, BLUE);
+            for (int i = 0; i < 10; i++)
+                for (int j = 0; j < 10; j++){
+                    DrawTexture(hex, ((60 * i) + (j * 30)), (49 * j), grid[i][j]);
+                }
 
         EndDrawing();
         //----------------------------------------------------------------------------------
