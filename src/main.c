@@ -22,8 +22,8 @@
 //compile:
 //gcc  main.c -o main.exe -lraylib -lopengl32 -lgdi32 -lwinmm
 #include <raylib.h>
-#include <math.h>
-#include <stdio.h>
+//#include <math.h>
+//#include <stdio.h>
 #include <stdlib.h>
 
 int main(void)
@@ -53,28 +53,46 @@ int main(void)
 
     
     // create camera
+    Camera2D camera = {0}; 
     // set camera data
+    float xTarget = 0;
+    float yTarget = 0;
+    camera.target = (Vector2){xTarget, yTarget};
+    camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+
+
+
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
+        // inpput
+        if (IsKeyDown(KEY_RIGHT))
+            xTarget++;
+        if (IsKeyDown(KEY_LEFT))
+            xTarget--;
+        if (IsKeyDown(KEY_UP))
+            yTarget--;
+        if (IsKeyDown(KEY_DOWN))
+            yTarget++;
+
+        // camera adjust
+        camera.target = (Vector2){xTarget, yTarget};
 
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
-
             ClearBackground(RAYWHITE);
-            //DrawTexture(hex, 0, 0, DARKBLUE);
-            //DrawTexture(hex, 60, 0, LIGHTGRAY);
-            //DrawTexture(hex, 30, 49, BLUE);
-            for (int i = 0; i < 10; i++)
-                for (int j = 0; j < 10; j++){
-                    DrawTexture(hex, ((60 * i) + (j * 30)), (49 * j), grid[i][j]);
-                }
+
+            BeginMode2D(camera);
+                // spacing for a hex triplet: (0,0), (60,0), (30,49)
+                for (int i = 0; i < 10; i++)
+                    for (int j = 0; j < 10; j++){
+                        DrawTexture(hex, ((60 * i) + (j * 30)), (49 * j), grid[i][j]);
+                    }
+            EndMode2D();
 
         EndDrawing();
         //----------------------------------------------------------------------------------
