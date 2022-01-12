@@ -10,14 +10,14 @@
 int main(void)
 {
     // Initialization
-    //--------------------------------------------------------------------------------------
+    // establish final minimum resolution
     const int screenWidth = 800;
     const int screenHeight = 450;
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(screenWidth, screenHeight, "Hex Game");
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+    SetWindowMinSize(screenWidth, screenHeight);
+    SetTargetFPS(120);
 
     //load textures
     Texture2D hex = LoadTexture("../assets/1-2hexW.png");
@@ -31,20 +31,39 @@ int main(void)
             grid[i][j].g = rand()%256;
             grid[i][j].b = rand()%256;
         }
-    
+
+    //loop vars
+    Vector2 mouseDeltaData = {};
+    Vector2 mousePositionData = {};
     // create camera and set data 
     Camera2D camera = {0};
-    float xTarget = screenWidth/2;
-    float yTarget = screenHeight/2;
+    float xTarget = screenWidth / 2;     // deprecate for camera.target.x?
+    float yTarget = screenHeight / 2;    // deprecate for camera.target.y?
     camera.target = (Vector2){xTarget, yTarget};
     camera.offset = (Vector2){screenWidth/2, screenHeight/2};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-
     // Main game loop
     while (!WindowShouldClose())
     {
+        // set varibles
+        mouseDeltaData = GetMouseDelta();
+        mousePositionData = GetMousePosition();
+
+        // fullscreen toggle (change hotkeys)
+        if ((IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) && IsKeyPressed(KEY_SPACE)){
+            if (!IsWindowFullscreen()) {
+                int display = GetCurrentMonitor();
+                SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
+                ToggleFullscreen();
+            }
+            else {
+                ToggleFullscreen();
+                SetWindowSize(screenWidth, screenHeight);
+            }
+        }
+
         // inpput move camera (add arrow speed modifer)
         if (IsKeyDown(KEY_RIGHT))
             xTarget += 1 / camera.zoom;
@@ -56,7 +75,6 @@ int main(void)
             yTarget += 1 / camera.zoom;
 
         // drag map (all zoom levels, no bounds)
-        Vector2 mouseDeltaData = GetMouseDelta();
         if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)){
             
             xTarget -= mouseDeltaData.x / camera.zoom;
@@ -64,7 +82,7 @@ int main(void)
         }
 
         // camera offset
-        camera.offset = GetMousePosition();
+        camera.offset = mousePositionData;
         xTarget += mouseDeltaData.x/camera.zoom;
         yTarget += mouseDeltaData.y/camera.zoom;
         // change camera pos
@@ -75,7 +93,6 @@ int main(void)
 
 
         // Draw
-        //----------------------------------------------------------------------------------
         BeginDrawing();
             ClearBackground(RAYWHITE);
 
@@ -87,15 +104,11 @@ int main(void)
                     }
 
             EndMode2D();
-
+            DrawFPS(10, 10);
         EndDrawing();
-        //----------------------------------------------------------------------------------
     }
 
     // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
+    CloseWindow();
     return 0;
 }
