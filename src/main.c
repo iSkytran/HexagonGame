@@ -1,30 +1,11 @@
-/*******************************************************************************************
-*
-*   raylib [core] example - Basic window
-*
-*   Welcome to raylib!
-*
-*   To test examples, just press F6 and execute raylib_compile_execute script
-*   Note that compiled executable is placed in the same folder as .c file
-*
-*   You can find all basic examples on C:\raylib\raylib\examples folder or
-*   raylib official webpage: www.raylib.com
-*
-*   Enjoy using raylib. :)
-*
-*   This example has been created using raylib 1.0 (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
-*
-*   Copyright (c) 2013-2016 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
+// add dev names
+// add copyright info
 
-//compile:
+//compile windows:
 //gcc  main.c -o main.exe -lraylib -lopengl32 -lgdi32 -lwinmm
 #include <raylib.h>
-//#include <math.h>
-//#include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 int main(void)
 {
@@ -50,36 +31,48 @@ int main(void)
             grid[i][j].g = rand()%256;
             grid[i][j].b = rand()%256;
         }
-
     
-    // create camera
-    Camera2D camera = {0}; 
-    // set camera data
-    float xTarget = 0;
-    float yTarget = 0;
+    // create camera and set data 
+    Camera2D camera = {0};
+    float xTarget = screenWidth/2;
+    float yTarget = screenHeight/2;
     camera.target = (Vector2){xTarget, yTarget};
-    camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
+    camera.offset = (Vector2){screenWidth/2, screenHeight/2};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
 
-
-
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose())
     {
-        // inpput
+        // inpput move camera (add arrow speed modifer)
         if (IsKeyDown(KEY_RIGHT))
-            xTarget++;
+            xTarget += 1 / camera.zoom;
         if (IsKeyDown(KEY_LEFT))
-            xTarget--;
+            xTarget -= 1 / camera.zoom;
         if (IsKeyDown(KEY_UP))
-            yTarget--;
+            yTarget -= 1 / camera.zoom;
         if (IsKeyDown(KEY_DOWN))
-            yTarget++;
+            yTarget += 1 / camera.zoom;
 
-        // camera adjust
-        camera.target = (Vector2){xTarget, yTarget};
+        // drag map (all zoom levels, no bounds)
+        Vector2 mouseDeltaData = GetMouseDelta();
+        if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)){
+            
+            xTarget -= mouseDeltaData.x / camera.zoom;
+            yTarget -= mouseDeltaData.y / camera.zoom;
+        }
+
+        // camera offset
+        camera.offset = GetMousePosition();
+        xTarget += mouseDeltaData.x/camera.zoom;
+        yTarget += mouseDeltaData.y/camera.zoom;
+        // change camera pos
+        camera.target.x = xTarget;
+        camera.target.y = yTarget;
+        // zoom adjust
+        camera.zoom *= powf(1.05f, GetMouseWheelMove());
+
 
         // Draw
         //----------------------------------------------------------------------------------
@@ -92,6 +85,7 @@ int main(void)
                     for (int j = 0; j < 10; j++){
                         DrawTexture(hex, ((60 * i) + (j * 30)), (49 * j), grid[i][j]);
                     }
+
             EndMode2D();
 
         EndDrawing();
